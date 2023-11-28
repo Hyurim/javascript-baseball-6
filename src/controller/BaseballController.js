@@ -1,3 +1,5 @@
+import check from "../domain/check.js";
+import randomNumber from "../domain/randomNumber.js";
 import numberIsValid from "../util/numberIsValid.js";
 import restartIsValid from "../util/restartIsValid.js";
 import InputView from "../view/InputView.js";
@@ -38,6 +40,8 @@ class BaseballController {
     }
   }
   handleBaseballLogic(){
+    const user = await this.#numberInput();
+    const answer = check(user, this.computer);
   }
 }
 
