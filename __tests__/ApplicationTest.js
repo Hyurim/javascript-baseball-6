@@ -1,60 +1,94 @@
-import App from "../src/App.js";
-import { MissionUtils } from "@woowacourse/mission-utils";
+const MissionUtils = require('@woowacourse/mission-utils');
+const App = require('../src/App');
 
-const mockQuestions = (inputs) => {
-  MissionUtils.Console.readLineAsync = jest.fn();
-
-  MissionUtils.Console.readLineAsync.mockImplementation(() => {
-    const input = inputs.shift();
-    return Promise.resolve(input);
-  });
+const mockQuestions = (answers) => {
+	MissionUtils.Console.readLine = jest.fn();
+	answers.reduce((acc, input) => {
+		return acc.mockImplementationOnce((_, callback) => {
+			callback(input);
+		});
+	}, MissionUtils.Console.readLine);
 };
 
 const mockRandoms = (numbers) => {
-  MissionUtils.Random.pickNumberInRange = jest.fn();
-  numbers.reduce((acc, number) => {
-    return acc.mockReturnValueOnce(number);
-  }, MissionUtils.Random.pickNumberInRange);
+	MissionUtils.Random.pickNumberInRange = jest.fn();
+	numbers.reduce((acc, number) => {
+		return acc.mockReturnValueOnce(number);
+	}, MissionUtils.Random.pickNumberInRange);
+};
+
+const mockShuffles = (rows) => {
+	MissionUtils.Random.shuffle = jest.fn();
+
+	rows.reduce((acc, [firstNumber, numbers]) => {
+		return acc.mockReturnValueOnce([
+			firstNumber,
+			...numbers.filter((number) => number !== firstNumber),
+		]);
+	}, MissionUtils.Random.shuffle);
 };
 
 const getLogSpy = () => {
-  const logSpy = jest.spyOn(MissionUtils.Console, "print");
-  logSpy.mockClear();
-  return logSpy;
+	const logSpy = jest.spyOn(MissionUtils.Console, 'print');
+	return logSpy;
 };
 
-describe("숫자 야구 게임", () => {
-  test("게임 종료 후 재시작", async () => {
-    // given
-    const randoms = [1, 3, 5, 5, 8, 9];
-    const answers = ["246", "135", "1", "597", "589", "2"];
-    const logSpy = getLogSpy();
-    const messages = ["낫싱", "3스트라이크", "1볼 1스트라이크", "3스트라이크", "게임 종료"];
+const getOutput = (logSpy) => {
+	return [...logSpy.mock.calls].join('');
+};
 
-    mockRandoms(randoms);
-    mockQuestions(answers);
+const expectLogContains = (received, logs) => {
+	logs.forEach((log) => {
+		expect(received).toEqual(expect.stringContaining(log));
+	});
+};
 
-    // when
-    const app = new App();
-    await expect(app.play()).resolves.not.toThrow();
+describe('점심 메뉴 테스트', () => {
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
 
-    // then
-    messages.forEach((output) => {
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(output));
-    });
-  });
+	describe('전체 기능 테스트', () => {
+		test('카테고리 메뉴 중복 없는 추천', () => {
+			const logSpy = getLogSpy();
 
-  test("예외 테스트", async () => {
-    // given
-    const randoms = [1, 3, 5];
-    const answers = ["1234"];
+			mockRandoms([2, 5, 1, 3, 4]);
+			mockQuestions(['구구,제임스', '김밥', '떡볶이']);
 
-    mockRandoms(randoms);
-    mockQuestions(answers);
+			const sequenced = (_, idx) => idx + 1;
+			mockShuffles([
+				// 구구
+				[2, Array.from({ length: 9 }, sequenced)],
+				[7, Array.from({ length: 9 }, sequenced)],
+				[1, Array.from({ length: 9 }, sequenced)],
+				[4, Array.from({ length: 9 }, sequenced)],
+				[2, Array.from({ length: 9 }, sequenced)],
 
-    // when & then
-    const app = new App();
+				//제임스
+				[9, Array.from({ length: 9 }, sequenced)],
+				[1, Array.from({ length: 9 }, sequenced)],
+				[5, Array.from({ length: 9 }, sequenced)],
+				[5, Array.from({ length: 9 }, sequenced)],
+				[4, Array.from({ length: 9 }, sequenced)],
+			]);
 
-    await expect(app.play()).rejects.toThrow("[ERROR]");
-  });
+			const app = new App();
+			app.play();
+			const log = getOutput(logSpy);
+
+			expect(log.replace(/\n/g, '')).toEqual(
+				expect.stringContaining(
+					[
+						'점심 메뉴 추천을 시작합니다.',
+						'메뉴 추천 결과입니다.',
+						'[ 구분 | 월요일 | 화요일 | 수요일 | 목요일 | 금요일 ]',
+						'[ 카테고리 | 한식 | 양식 | 일식 | 중식 | 아시안 ]',
+						'[ 구구 | 김치찌개 | 스파게티 | 규동 | 짜장면 | 카오 팟 ]',
+						'[ 제임스 | 제육볶음 | 라자냐 | 가츠동 | 짬뽕 | 파인애플 볶음밥 ]',
+						'추천을 완료했습니다.',
+					].join(''),
+				),
+			);
+		});
+	});
 });

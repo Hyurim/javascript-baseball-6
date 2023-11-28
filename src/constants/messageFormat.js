@@ -1,12 +1,11 @@
-import { GAME_MESSAGE } from "./constant.js";
+import { ERROR } from "./constants.js"
 
-const { strike, ball, nothing } = GAME_MESSAGE;
+const { prefix } = ERROR;
 
-const MESSAGEFORMAT = {
-  strike: (answer) => `${answer}${strike}`,
-  ball: (answer) => `${answer}${ball}`,
-  ballAndStrike: (answer) => `${answer[0]}${ball} ${answer[1]}${strike}`,
-  nothing: (answer) => `${nothing}`,
-};
+const messageFormat = {
+  errorMessage: (message) => `${prefix} ${message}`,
 
-export default MESSAGEFORMAT;
+
+}
+
+export default messageFormat;

@@ -1,11 +1,12 @@
-import BaseballController from "./controller/BaseballController.js";
+import MenuController from "./Controller/MenuController.js";
 
 class App {
   constructor() {
-    this.baseballController = new BaseballController();
+    this.menuController = new MenuController();
   }
   async play() {
-    this.baseballController.handleBaseballLogic();
+    const name = await this.menuController.nameInput();
+    this.menuController.menuLogic(name);
   }
 }
 

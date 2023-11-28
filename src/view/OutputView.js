@@ -1,9 +1,9 @@
 import { Console } from "@woowacourse/mission-utils";
-import { MESSAGE } from "../constants/constant.js";
+import { MESSAGE } from "../constants/constants.js";
 
 const { start } = MESSAGE;
 
-const OutputView = {
+const outputView = {
   print(message) {
     Console.print(message);
   },
@@ -12,21 +12,10 @@ const OutputView = {
     this.print(start);
   },
 
-  errorPrint(message) {
+  errorPrint(message){
     this.print(message);
   },
-  onlyStrike(message){
+  
+}
 
-  },
-  onlyball(message){
-
-  },
-  ballAndStrike(message){
-
-  },
-  nothing(message){
-
-  },
-};
-
-export default OutputView;
+export default outputView;

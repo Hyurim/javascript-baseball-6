@@ -1,15 +1,15 @@
 import { Console } from "@woowacourse/mission-utils";
-import { MESSAGE } from "../constants/constant.js";
+import { MESSAGE } from "../constants/constants.js";
 
-const {numberInput, restart} = MESSAGE;
+const { name, dontEat } = MESSAGE;
 
 const InputView = {
-  async start() {
-    return await Console.readLineAsync(numberInput);
+  async name() {
+    return await Console.readLineAsync(name);
   },
 
-  async restart() {
-    return await Console.readLineAsync(restart);
+  async food(name) {
+    return await Console.readLineAsync(dontEat);
   },
 };
 
