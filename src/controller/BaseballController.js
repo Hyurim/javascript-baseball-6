@@ -1,3 +1,8 @@
+import numberIsValid from "../util/numberIsValid.js";
+import restartIsValid from "../util/restartIsValid.js";
+import InputView from "../view/InputView.js";
+import OutputView from "../view/OutputView.js";
+
 class BaseballController {
   constructor() {
     OutputView.start();
@@ -10,8 +15,10 @@ class BaseballController {
   async #handleNumberInput() {
     try {
       const numbers = await InputView.start();
+      numberIsValid(numbers);
       return numbers;
     } catch (error) {
+      OutputView.errorPrint(error.message);
       return this.#handleNumberInput();
     }
   }
@@ -23,8 +30,10 @@ class BaseballController {
   async #handleRestartInput() {
     try {
       const number = await InputView.restart();
+      restartIsValid(number);
       return number;
     } catch (error) {
+      OutputView.errorPrint(error.message);
       return this.#handleRestartInput();
     }
   }
